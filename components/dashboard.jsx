@@ -26,6 +26,21 @@ function formatTs(ts) {
   return new Date(ts).toLocaleString("zh-CN", { hour12: false });
 }
 
+async function readApiPayload(res) {
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    return res.json().catch(() => ({}));
+  }
+
+  const text = await res.text().catch(() => "");
+  return { error: text.slice(0, 180) };
+}
+
+function buildHttpError(prefix, res, payload) {
+  const detail = payload?.error || payload?.message || "";
+  return new Error(detail || `${prefix} (HTTP ${res.status})`);
+}
+
 export default function Dashboard() {
   const [symbols, setSymbols] = useState([]);
   const [symbol, setSymbol] = useState("");
@@ -37,8 +52,8 @@ export default function Dashboard() {
 
   const loadSymbols = useCallback(async () => {
     const res = await fetch("/api/symbols", { cache: "no-store" });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "获取交易对失败");
+    const data = await readApiPayload(res);
+    if (!res.ok) throw buildHttpError("获取交易对失败", res, data);
     setSymbols(data.symbols || []);
     if (!symbol && data.symbols?.length) {
       setSymbol(data.symbols[0]);
@@ -56,8 +71,8 @@ export default function Dashboard() {
         const res = await fetch(`/api/series?symbol=${encodeURIComponent(targetSymbol)}&limit=240`, {
           cache: "no-store",
         });
-        if (!res.ok) throw new Error("获取时序数据失败");
-        const data = await res.json();
+        const data = await readApiPayload(res);
+        if (!res.ok) throw buildHttpError("获取时序数据失败", res, data);
         setPoints(data.points || []);
         setLastUpdated(data.updatedAt || "");
       } catch (err) {
@@ -76,10 +91,8 @@ export default function Dashboard() {
       const res = await fetch(`/api/collect?symbol=${encodeURIComponent(symbol)}`, {
         cache: "no-store",
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "触发采集失败");
-      }
+      const data = await readApiPayload(res);
+      if (!res.ok) throw buildHttpError("触发采集失败", res, data);
       await loadSeries(symbol);
     } catch (err) {
       setError(err.message || "触发采集失败");
