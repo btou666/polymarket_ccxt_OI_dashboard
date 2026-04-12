@@ -69,16 +69,56 @@ npm run dev
 
 ## 服务器部署
 
+推荐环境：Ubuntu 22.04+, Node.js 20+, PM2, Nginx
+
+### 1. 连接服务器并安装依赖
+
+```bash
+ssh root@124.156.129.145
+apt update && apt install -y git curl nginx build-essential
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt install -y nodejs
+npm i -g pm2
+```
+
+### 2. 拉取项目并配置环境变量
+
+```bash
+cd /opt
+git clone https://github.com/btou666/polymarket_ccxt_OI_dashboard.git
+cd polymarket_ccxt_OI_dashboard
+cp .env.example .env
+```
+
+关键建议：
+- `SYMBOL_LIMIT=0`：抓 Binance 全部 USDT 永续合约
+- `AGG_EXCHANGES=binanceusdm,bybit,okx,bitget,gateio,kucoinfutures,mexc,bingx`
+- 生产建议设置 `COLLECT_TOKEN`
+
+### 3. 构建并启动（PM2）
+
 ```bash
 npm install
 npm run build
-npm run start
+pm2 start ecosystem.config.cjs
+pm2 save
 ```
 
-再开一个进程做采集循环：
+### 4. 配置 Nginx 反向代理
 
 ```bash
-npm run collect:loop
+cp deploy/nginx-oi-dashboard.conf /etc/nginx/sites-available/oi-dashboard.conf
+ln -sf /etc/nginx/sites-available/oi-dashboard.conf /etc/nginx/sites-enabled/oi-dashboard.conf
+rm -f /etc/nginx/sites-enabled/default
+nginx -t && systemctl restart nginx
 ```
 
-建议使用 `pm2` / `systemd` 守护 `npm run collect:loop`。
+### 5. 验证服务
+
+```bash
+curl http://127.0.0.1:3000/api/health
+curl http://127.0.0.1:3000/api/symbols
+```
+
+如果返回 JSON，说明服务正常，再访问公网 IP：
+- `http://124.156.129.145`
