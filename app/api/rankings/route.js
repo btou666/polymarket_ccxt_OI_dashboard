@@ -47,7 +47,7 @@ export async function GET(request) {
   try {
     const url = new URL(request.url);
     const limit = Math.max(1, Math.min(2000, toInt(url.searchParams.get("limit"), 500)));
-    const windows = [1, 3, 6];
+    const windows = [1, 3, 6, 12];
     const sortHours = windows.includes(toInt(url.searchParams.get("sortHours"), 6))
       ? toInt(url.searchParams.get("sortHours"), 6)
       : 6;
@@ -76,6 +76,7 @@ export async function GET(request) {
       const h1 = calcWindow(points, latest, 1);
       const h3 = calcWindow(points, latest, 3);
       const h6 = calcWindow(points, latest, 6);
+      const h12 = calcWindow(points, latest, 12);
       const includedExchanges = (latest.exchanges || []).filter((row) => row?.included !== false).length;
       const totalExchanges = (latest.exchanges || []).length;
 
@@ -88,13 +89,17 @@ export async function GET(request) {
         pct3h: h3.pct,
         delta6h: h6.delta,
         pct6h: h6.pct,
+        delta12h: h12.delta,
+        pct12h: h12.pct,
         latestTs: latest.ts,
         baselineTs1h: h1.baselineTs,
         baselineTs3h: h3.baselineTs,
         baselineTs6h: h6.baselineTs,
+        baselineTs12h: h12.baselineTs,
         fullWindow1h: h1.fullWindow,
         fullWindow3h: h3.fullWindow,
         fullWindow6h: h6.fullWindow,
+        fullWindow12h: h12.fullWindow,
         includedExchanges,
         totalExchanges,
       });

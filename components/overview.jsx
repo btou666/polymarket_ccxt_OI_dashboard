@@ -36,9 +36,9 @@ export default function Overview() {
   const [generatedAt, setGeneratedAt] = useState(0);
 
   const loadRankings = useCallback(async () => {
-      setLoading(true);
-      setError("");
-      try {
+    setLoading(true);
+    setError("");
+    try {
       const res = await fetch("/api/rankings?sortHours=6&limit=800", { cache: "no-store" });
       const data = await readApiPayload(res);
       if (!res.ok) throw new Error(data.error || `获取榜单失败 (HTTP ${res.status})`);
@@ -67,7 +67,7 @@ export default function Overview() {
       <header className="header">
         <div>
           <h1 className="title">OI 环比总览</h1>
-          <p className="subtitle">展示 1h/3h/6h 环比，按 6h 环比倒序，点击币对进入详情</p>
+          <p className="subtitle">展示 1h/3h/6h/12h 环比，按 6h 环比倒序，点击币对进入详情</p>
         </div>
         <div className="badge">刷新周期: 60 秒</div>
       </header>
@@ -93,6 +93,7 @@ export default function Overview() {
                 <th>1h 环比</th>
                 <th>3h 环比</th>
                 <th>6h 环比</th>
+                <th>12h 环比</th>
                 <th>当前 OI</th>
                 <th>交易所(计入/总)</th>
                 <th>最近点时间</th>
@@ -104,6 +105,7 @@ export default function Overview() {
                 const up1h = (row.pct1h ?? 0) >= 0;
                 const up3h = (row.pct3h ?? 0) >= 0;
                 const up6h = (row.pct6h ?? 0) >= 0;
+                const up12h = (row.pct12h ?? 0) >= 0;
                 return (
                   <tr key={row.symbol}>
                     <td>{idx + 1}</td>
@@ -112,6 +114,7 @@ export default function Overview() {
                     <td style={{ color: up1h ? "#7f9b8c" : "#b18678" }}>{formatPct(row.pct1h)}</td>
                     <td style={{ color: up3h ? "#7f9b8c" : "#b18678" }}>{formatPct(row.pct3h)}</td>
                     <td style={{ color: up6h ? "#7f9b8c" : "#b18678" }}>{formatPct(row.pct6h)}</td>
+                    <td style={{ color: up12h ? "#7f9b8c" : "#b18678" }}>{formatPct(row.pct12h)}</td>
                     <td>{formatNumber(row.latestOi)}</td>
                     <td>
                       {row.includedExchanges}/{row.totalExchanges}
