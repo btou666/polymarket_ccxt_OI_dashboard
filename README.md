@@ -43,9 +43,23 @@ npm run dev
 2. 在 Vercel 环境变量中设置：
    - `CRON_SECRET`（建议）
    - 若要持久化：`KV_REST_API_URL`、`KV_REST_API_TOKEN`
-3. `vercel.json` 已配置每分钟触发 `/api/cron/collect`。
+3. 部署后，使用外部 Cron 服务按分钟调用你的采集接口（见下方说明）。
 
-说明：Vercel 无本地持久化磁盘，生产建议启用 Upstash Redis。
+说明：
+- Vercel Hobby 只支持“每天一次”的内置 Cron，不支持每分钟。
+- Vercel 无本地持久化磁盘，生产建议启用 Upstash Redis。
+
+## 外部 Cron（每分钟）
+
+可使用 `cron-job.org`、`EasyCron` 等外部调度服务，每分钟请求一次：
+
+- URL：`https://你的域名/api/collect?token=你的COLLECT_TOKEN`
+- 方法：`GET`
+- 频率：每 1 分钟
+
+建议：
+- 在 Vercel 环境变量里设置 `COLLECT_TOKEN`，避免接口被公开滥用。
+- 若调度平台支持自定义 Header，也可改用 `/api/cron/collect` 并传 `Authorization: Bearer CRON_SECRET`。
 
 ## 服务器部署
 
