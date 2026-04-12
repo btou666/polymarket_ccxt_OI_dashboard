@@ -2,9 +2,10 @@ module.exports = {
   apps: [
     {
       name: "oi-web",
-      script: "npm",
-      args: "run start -- -p 3000",
+      script: "node_modules/next/dist/bin/next",
+      args: "start -H 0.0.0.0 -p 3000",
       cwd: "/opt/polymarket_ccxt_OI_dashboard",
+      interpreter: "node",
       env: {
         NODE_ENV: "production",
         PORT: "3000",
@@ -14,9 +15,9 @@ module.exports = {
     },
     {
       name: "oi-collector",
-      script: "npm",
-      args: "run collect:loop",
+      script: "scripts/collect-loop.mjs",
       cwd: "/opt/polymarket_ccxt_OI_dashboard",
+      interpreter: "node",
       env: {
         NODE_ENV: "production",
       },
