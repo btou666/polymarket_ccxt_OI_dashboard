@@ -42,6 +42,8 @@ npm run dev
 - `GET /api/symbols` 获取交易对列表
 - `GET /api/series?symbol=BTC/USDT:USDT&limit=240` 获取折线图时序
 
+说明：当部分交易所仅返回 `amount` 而非 `value` 时，系统会尝试用 ticker 价格折算为 `value` 并计入聚合；面板会展示每个交易所是否被计入。
+
 ## Vercel 部署
 
 1. 将代码推到 GitHub 并导入 Vercel。

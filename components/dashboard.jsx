@@ -87,6 +87,22 @@ export default function Dashboard() {
     [],
   );
 
+  const loadDebugStats = useCallback(async () => {
+    setDebugLoading(true);
+    setDebugError("");
+    try {
+      const res = await fetch("/api/debug/exchanges", { cache: "no-store" });
+      const data = await readApiPayload(res);
+      if (!res.ok) throw buildHttpError("读取采集状态失败", res, data);
+      setDebugStats(data);
+    } catch (err) {
+      setDebugStats(null);
+      setDebugError(err.message || "读取采集状态失败");
+    } finally {
+      setDebugLoading(false);
+    }
+  }, []);
+
   const collectNow = useCallback(async () => {
     setCollecting(true);
     setError("");
@@ -103,23 +119,7 @@ export default function Dashboard() {
     } finally {
       setCollecting(false);
     }
-  }, [loadSeries, symbol]);
-
-  const loadDebugStats = useCallback(async () => {
-    setDebugLoading(true);
-    setDebugError("");
-    try {
-      const res = await fetch("/api/debug/exchanges", { cache: "no-store" });
-      const data = await readApiPayload(res);
-      if (!res.ok) throw buildHttpError("读取采集状态失败", res, data);
-      setDebugStats(data);
-    } catch (err) {
-      setDebugStats(null);
-      setDebugError(err.message || "读取采集状态失败");
-    } finally {
-      setDebugLoading(false);
-    }
-  }, []);
+  }, [loadDebugStats, loadSeries, symbol]);
 
   useEffect(() => {
     loadSymbols().catch((err) => setError(err.message || "初始化失败"));
@@ -175,10 +175,12 @@ export default function Dashboard() {
   }, []);
 
   const latest = points.length ? points[points.length - 1] : null;
-  const latestExchangeCount = latest?.exchanges?.length || 0;
+  const latestIncludedExchangeCount =
+    latest?.exchanges?.filter((row) => row?.included !== false).length || 0;
+  const latestTotalExchangeCount = latest?.exchanges?.length || 0;
   const latestExchanges = useMemo(() => {
     const rows = Array.isArray(latest?.exchanges) ? [...latest.exchanges] : [];
-    return rows.sort((a, b) => (b?.oi || 0) - (a?.oi || 0));
+    return rows.sort((a, b) => (b?.value ?? b?.oi ?? 0) - (a?.value ?? a?.oi ?? 0));
   }, [latest]);
 
   return (
@@ -215,7 +217,9 @@ export default function Dashboard() {
         <div className="meta">
           <span>当前交易对: {symbol || "-"}</span>
           <span>最近聚合 OI: {formatNumber(latest?.oi)}</span>
-          <span>聚合交易所数: {latestExchangeCount || "-"}</span>
+          <span>
+            聚合交易所数: {latestIncludedExchangeCount || "-"} / {latestTotalExchangeCount || "-"}
+          </span>
           <span>计量: {latest?.metric === "value" ? "notional/value" : "amount"}</span>
           <span>最近点时间: {formatTs(latest?.ts)}</span>
           <span>接口更新时间: {formatTs(lastUpdated)}</span>
@@ -230,8 +234,10 @@ export default function Dashboard() {
                   <thead>
                     <tr>
                       <th>交易所</th>
-                      <th>OI</th>
+                      <th>原始 OI</th>
+                      <th>折算值</th>
                       <th>计量</th>
+                      <th>状态</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -239,7 +245,9 @@ export default function Dashboard() {
                       <tr key={`${row.exchange}-${row.metric}`}>
                         <td>{row.exchange || "-"}</td>
                         <td>{formatNumber(row.oi)}</td>
+                        <td>{row.value != null ? formatNumber(row.value) : "-"}</td>
                         <td>{row.metric || latest?.metric || "-"}</td>
+                        <td>{row.included === false ? "未计入汇总" : "已计入"}</td>
                       </tr>
                     ))}
                   </tbody>
