@@ -37,11 +37,13 @@ export default function Dashboard() {
 
   const loadSymbols = useCallback(async () => {
     const res = await fetch("/api/symbols", { cache: "no-store" });
-    if (!res.ok) throw new Error("获取交易对失败");
     const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "获取交易对失败");
     setSymbols(data.symbols || []);
     if (!symbol && data.symbols?.length) {
       setSymbol(data.symbols[0]);
+    } else if (!data.symbols?.length) {
+      throw new Error(data.error || "未获取到可用交易对");
     }
   }, [symbol]);
 

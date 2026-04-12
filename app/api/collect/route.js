@@ -4,6 +4,7 @@ import { isManualCollectAuthorized } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const preferredRegion = ["hkg1", "sin1", "hnd1"];
 
 function parseSymbols(request) {
   const url = new URL(request.url);

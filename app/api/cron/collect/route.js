@@ -4,6 +4,7 @@ import { isCronAuthorized } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const preferredRegion = ["hkg1", "sin1", "hnd1"];
 
 export async function GET(request) {
   if (!isCronAuthorized(request)) {

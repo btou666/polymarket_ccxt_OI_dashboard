@@ -7,6 +7,7 @@
 - 使用 `ccxt` 抓取合约 OI
 - 定时采集（Vercel Cron 每分钟 / 服务器循环任务）
 - 折线图可视化（按交易对查看）
+- 当前版本为 Binance OI（非多交易所聚合）
 - 支持 `TARGET_SYMBOLS` 指定交易对，或用 `SYMBOL_LIMIT` 自动追踪多币种
 - 存储层可选：
   - 本地 `data/oi.json`（适合服务器部署）
@@ -47,6 +48,7 @@ npm run dev
 
 说明：
 - Vercel Hobby 只支持“每天一次”的内置 Cron，不支持每分钟。
+- Binance Futures 在部分地域（尤其美国）可能受限，已在 API 配置亚洲优先区域；若仍失败建议使用自建服务器部署。
 - Vercel 无本地持久化磁盘，生产建议启用 Upstash Redis。
 
 ## 外部 Cron（每分钟）
