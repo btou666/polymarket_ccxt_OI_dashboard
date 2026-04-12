@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Chart as ChartJS,
@@ -41,9 +42,15 @@ function buildHttpError(prefix, res, payload) {
   return new Error(detail || `${prefix} (HTTP ${res.status})`);
 }
 
-export default function Dashboard() {
+function toHourTs(ts) {
+  const d = new Date(ts);
+  d.setMinutes(0, 0, 0);
+  return d.getTime();
+}
+
+export default function Dashboard({ initialSymbol = "" }) {
   const [symbols, setSymbols] = useState([]);
-  const [symbol, setSymbol] = useState("");
+  const [symbol, setSymbol] = useState(initialSymbol || "");
   const [points, setPoints] = useState([]);
   const [loading, setLoading] = useState(false);
   const [collecting, setCollecting] = useState(false);
@@ -59,6 +66,8 @@ export default function Dashboard() {
     if (!res.ok) throw buildHttpError("获取交易对失败", res, data);
     setSymbols(data.symbols || []);
     if (!symbol && data.symbols?.length) {
+      setSymbol(data.symbols[0]);
+    } else if (symbol && data.symbols?.length && !data.symbols.includes(symbol)) {
       setSymbol(data.symbols[0]);
     } else if (!data.symbols?.length) {
       throw new Error(data.error || "未获取到可用交易对");
@@ -137,12 +146,29 @@ export default function Dashboard() {
   }, [loadDebugStats, loadSeries, symbol]);
 
   const chartData = useMemo(() => {
+    const byHour = new Map();
+    const ordered = [...points].sort((a, b) => a.ts - b.ts);
+    for (const point of ordered) {
+      const hourTs = toHourTs(point.ts);
+      byHour.set(hourTs, point);
+    }
+    const hourlyPoints = Array.from(byHour.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([, point]) => point);
+
     return {
-      labels: points.map((p) => new Date(p.ts).toLocaleTimeString("zh-CN", { hour12: false })),
+      labels: hourlyPoints.map((p) =>
+        new Date(toHourTs(p.ts)).toLocaleString("zh-CN", {
+          hour12: false,
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+        }),
+      ),
       datasets: [
         {
-          label: `${symbol || "合约"} OI`,
-          data: points.map((p) => p.oi),
+          label: `${symbol || "合约"} OI (小时)`,
+          data: hourlyPoints.map((p) => p.oi),
           borderColor: "#4ec5ff",
           backgroundColor: "rgba(78, 197, 255, 0.22)",
           borderWidth: 2,
@@ -163,7 +189,7 @@ export default function Dashboard() {
       },
       scales: {
         x: {
-          ticks: { color: "#a8c0e6", maxRotation: 0, autoSkip: true, maxTicksLimit: 10 },
+          ticks: { color: "#a8c0e6", maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
           grid: { color: "rgba(133, 168, 209, 0.12)" },
         },
         y: {
@@ -187,6 +213,11 @@ export default function Dashboard() {
     <main className="main">
       <header className="header">
         <div>
+          <div className="crumb">
+            <Link href="/" className="link-btn">
+              返回总览
+            </Link>
+          </div>
           <h1 className="title">Binance 合约跨交易所 OI 监控</h1>
           <p className="subtitle">以 Binance USDT 合约为基准，聚合多交易所 OI</p>
         </div>

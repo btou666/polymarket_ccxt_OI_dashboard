@@ -1,0 +1,133 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+const REFRESH_MS = 60_000;
+
+function formatNumber(value) {
+  if (value == null || Number.isNaN(value)) return "-";
+  return new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 2 }).format(value);
+}
+
+function formatPct(value) {
+  if (value == null || Number.isNaN(value)) return "-";
+  return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`;
+}
+
+function formatTs(ts) {
+  if (!ts) return "-";
+  return new Date(ts).toLocaleString("zh-CN", { hour12: false });
+}
+
+async function readApiPayload(res) {
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    return res.json().catch(() => ({}));
+  }
+  const text = await res.text().catch(() => "");
+  return { error: text.slice(0, 200) };
+}
+
+export default function Overview() {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [generatedAt, setGeneratedAt] = useState(0);
+
+  const loadRankings = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/rankings?lookbackHours=1&limit=800", { cache: "no-store" });
+      const data = await readApiPayload(res);
+      if (!res.ok) throw new Error(data.error || `获取榜单失败 (HTTP ${res.status})`);
+      setRows(data.rows || []);
+      setGeneratedAt(data.generatedAt || Date.now());
+    } catch (err) {
+      setError(err.message || "读取榜单失败");
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadRankings().catch(() => {});
+    const timer = setInterval(() => {
+      loadRankings().catch(() => {});
+    }, REFRESH_MS);
+    return () => clearInterval(timer);
+  }, [loadRankings]);
+
+  const topRows = useMemo(() => rows, [rows]);
+
+  return (
+    <main className="main">
+      <header className="header">
+        <div>
+          <h1 className="title">OI 每小时增量总览</h1>
+          <p className="subtitle">按 1 小时 OI 环比增量倒序，点击币对进入详情</p>
+        </div>
+        <div className="badge">刷新周期: 60 秒</div>
+      </header>
+
+      <section className="card">
+        <div className="panel-head" style={{ marginBottom: 10 }}>
+          <div className="panel-meta" style={{ margin: 0 }}>
+            <span>币对数: {topRows.length}</span>
+            <span>榜单时间: {formatTs(generatedAt)}</span>
+          </div>
+          <button type="button" onClick={loadRankings} disabled={loading}>
+            {loading ? "刷新中..." : "刷新榜单"}
+          </button>
+        </div>
+
+        <div className="table-wrap" style={{ maxHeight: 640 }}>
+          <table className="mini-table overview-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>币对</th>
+                <th>1h 增量</th>
+                <th>1h 环比</th>
+                <th>当前 OI</th>
+                <th>交易所(计入/总)</th>
+                <th>最近点时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topRows.map((row, idx) => {
+                const up = row.delta >= 0;
+                return (
+                  <tr key={row.symbol}>
+                    <td>{idx + 1}</td>
+                    <td>{row.symbol}</td>
+                    <td style={{ color: up ? "#8ee6ac" : "#ffc39d" }}>{formatNumber(row.delta)}</td>
+                    <td style={{ color: up ? "#8ee6ac" : "#ffc39d" }}>{formatPct(row.pct)}</td>
+                    <td>{formatNumber(row.latestOi)}</td>
+                    <td>
+                      {row.includedExchanges}/{row.totalExchanges}
+                    </td>
+                    <td>{formatTs(row.latestTs)}</td>
+                    <td>
+                      <Link
+                        className="link-btn"
+                        href={{ pathname: "/symbol", query: { symbol: row.symbol } }}
+                      >
+                        查看详情
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {error ? <div className="error">{error}</div> : null}
+      </section>
+    </main>
+  );
+}

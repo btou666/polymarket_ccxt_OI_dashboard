@@ -36,6 +36,7 @@ npm run dev
 
 ## 数据接口
 
+- `GET /api/rankings?lookbackHours=1&limit=500` 一级总览榜单（按 1 小时 OI 增量倒序）
 - `GET /api/collect` 手动触发采集（可选 `symbol` 或 `symbols` 参数）
 - `GET /api/cron/collect` 定时采集入口（用于 Vercel Cron）
 - `GET /api/debug/exchanges` 最近一次采集的交易所统计（tracked/collected/failed）
@@ -43,6 +44,11 @@ npm run dev
 - `GET /api/series?symbol=BTC/USDT:USDT&limit=240` 获取折线图时序
 
 说明：当部分交易所仅返回 `amount` 而非 `value` 时，系统会尝试用 ticker 价格折算为 `value` 并计入聚合；面板会展示每个交易所是否被计入。
+
+## 页面结构
+
+- 一级页面 `/`：所有币对按 1 小时 OI 增量倒序展示
+- 二级页面 `/symbol?symbol=BTC/USDT:USDT`：单币对详情（折线图按小时横轴）
 
 ## Vercel 部署
 
