@@ -53,6 +53,7 @@ npm run dev
 - Vercel Hobby 只支持“每天一次”的内置 Cron，不支持每分钟。
 - Binance Futures 在部分地域（尤其美国）可能受限，已在 API 配置亚洲优先区域；若仍失败建议使用自建服务器部署。
 - Vercel 无本地持久化磁盘，生产建议启用 Upstash Redis。
+- 未启用 Upstash 时，项目会在 Vercel 使用 `/tmp/binance-oi-dashboard` 作为可写临时目录。
 
 ## 外部 Cron（每分钟）
 

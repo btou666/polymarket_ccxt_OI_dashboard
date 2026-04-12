@@ -10,8 +10,12 @@ export async function GET(request) {
 
   let symbol = url.searchParams.get("symbol") || "";
   if (!symbol) {
-    const symbols = await listSymbols();
-    symbol = symbols[0] || "";
+    try {
+      const symbols = await listSymbols();
+      symbol = symbols[0] || "";
+    } catch {
+      symbol = "";
+    }
   }
 
   if (!symbol) {

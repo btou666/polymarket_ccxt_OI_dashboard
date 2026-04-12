@@ -24,9 +24,13 @@ export async function GET() {
     return NextResponse.json({ symbols: CONFIG.targetSymbols, source: "env" });
   }
 
-  const fromStorage = await listSymbols();
-  if (fromStorage.length) {
-    return NextResponse.json({ symbols: fromStorage, source: "storage" });
+  try {
+    const fromStorage = await listSymbols();
+    if (fromStorage.length) {
+      return NextResponse.json({ symbols: fromStorage, source: "storage" });
+    }
+  } catch {
+    // Ignore storage read errors and continue with exchange discovery.
   }
 
   const exchange = createBinanceClient();
