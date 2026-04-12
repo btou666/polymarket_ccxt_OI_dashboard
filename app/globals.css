@@ -110,6 +110,73 @@ button:disabled {
   flex-wrap: wrap;
 }
 
+.panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(8, 20, 39, 0.46);
+  padding: 10px;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 14px;
+  color: #d4e7ff;
+}
+
+.panel-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--text-dim);
+  font-size: 12px;
+  margin: 8px 0 10px;
+}
+
+.table-wrap {
+  max-height: 240px;
+  overflow: auto;
+}
+
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.mini-table th,
+.mini-table td {
+  text-align: left;
+  border-bottom: 1px solid rgba(127, 176, 230, 0.18);
+  padding: 6px 4px;
+}
+
+.empty-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.small-error {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #ffc39d;
+}
+
 .error {
   color: #ffd0b0;
   background: rgba(132, 50, 20, 0.35);
@@ -121,6 +188,10 @@ button:disabled {
 
 @media (max-width: 760px) {
   .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .panels {
     grid-template-columns: 1fr;
   }
 

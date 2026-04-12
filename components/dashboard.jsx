@@ -47,7 +47,10 @@ export default function Dashboard() {
   const [points, setPoints] = useState([]);
   const [loading, setLoading] = useState(false);
   const [collecting, setCollecting] = useState(false);
+  const [debugLoading, setDebugLoading] = useState(false);
   const [error, setError] = useState("");
+  const [debugError, setDebugError] = useState("");
+  const [debugStats, setDebugStats] = useState(null);
   const [lastUpdated, setLastUpdated] = useState("");
 
   const loadSymbols = useCallback(async () => {
@@ -94,12 +97,29 @@ export default function Dashboard() {
       const data = await readApiPayload(res);
       if (!res.ok) throw buildHttpError("触发采集失败", res, data);
       await loadSeries(symbol);
+      await loadDebugStats();
     } catch (err) {
       setError(err.message || "触发采集失败");
     } finally {
       setCollecting(false);
     }
   }, [loadSeries, symbol]);
+
+  const loadDebugStats = useCallback(async () => {
+    setDebugLoading(true);
+    setDebugError("");
+    try {
+      const res = await fetch("/api/debug/exchanges", { cache: "no-store" });
+      const data = await readApiPayload(res);
+      if (!res.ok) throw buildHttpError("读取采集状态失败", res, data);
+      setDebugStats(data);
+    } catch (err) {
+      setDebugStats(null);
+      setDebugError(err.message || "读取采集状态失败");
+    } finally {
+      setDebugLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadSymbols().catch((err) => setError(err.message || "初始化失败"));
@@ -108,11 +128,13 @@ export default function Dashboard() {
   useEffect(() => {
     if (!symbol) return;
     loadSeries(symbol).catch((err) => setError(err.message || "读取失败"));
+    loadDebugStats().catch(() => {});
     const timer = setInterval(() => {
       loadSeries(symbol).catch((err) => setError(err.message || "自动刷新失败"));
+      loadDebugStats().catch(() => {});
     }, REFRESH_MS);
     return () => clearInterval(timer);
-  }, [loadSeries, symbol]);
+  }, [loadDebugStats, loadSeries, symbol]);
 
   const chartData = useMemo(() => {
     return {
@@ -154,6 +176,10 @@ export default function Dashboard() {
 
   const latest = points.length ? points[points.length - 1] : null;
   const latestExchangeCount = latest?.exchanges?.length || 0;
+  const latestExchanges = useMemo(() => {
+    const rows = Array.isArray(latest?.exchanges) ? [...latest.exchanges] : [];
+    return rows.sort((a, b) => (b?.oi || 0) - (a?.oi || 0));
+  }, [latest]);
 
   return (
     <main className="main">
@@ -193,6 +219,81 @@ export default function Dashboard() {
           <span>计量: {latest?.metric === "value" ? "notional/value" : "amount"}</span>
           <span>最近点时间: {formatTs(latest?.ts)}</span>
           <span>接口更新时间: {formatTs(lastUpdated)}</span>
+        </div>
+
+        <div className="panels">
+          <section className="panel">
+            <h3 className="panel-title">最近点交易所贡献</h3>
+            {latestExchanges.length ? (
+              <div className="table-wrap">
+                <table className="mini-table">
+                  <thead>
+                    <tr>
+                      <th>交易所</th>
+                      <th>OI</th>
+                      <th>计量</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {latestExchanges.map((row) => (
+                      <tr key={`${row.exchange}-${row.metric}`}>
+                        <td>{row.exchange || "-"}</td>
+                        <td>{formatNumber(row.oi)}</td>
+                        <td>{row.metric || latest?.metric || "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="empty-note">当前点暂无交易所贡献明细</div>
+            )}
+          </section>
+
+          <section className="panel">
+            <div className="panel-head">
+              <h3 className="panel-title">采集状态调试</h3>
+              <button type="button" onClick={loadDebugStats} disabled={debugLoading}>
+                {debugLoading ? "刷新中..." : "刷新状态"}
+              </button>
+            </div>
+
+            {debugStats ? (
+              <>
+                <div className="panel-meta">
+                  <span>最近采集: {formatTs(debugStats.at)}</span>
+                  <span>交易对: {debugStats.symbols}</span>
+                  <span>聚合成功: {debugStats.collected}</span>
+                  <span>失败数: {debugStats.failed}</span>
+                </div>
+                <div className="table-wrap">
+                  <table className="mini-table">
+                    <thead>
+                      <tr>
+                        <th>交易所</th>
+                        <th>映射</th>
+                        <th>采集</th>
+                        <th>失败</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(debugStats.exchangeStats || []).map((item) => (
+                        <tr key={item.exchange}>
+                          <td>{item.exchange}</td>
+                          <td>{item.tracked}</td>
+                          <td>{item.collected}</td>
+                          <td>{item.failed}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : (
+              <div className="empty-note">暂无采集调试数据，请先触发一次采集</div>
+            )}
+            {debugError ? <div className="small-error">{debugError}</div> : null}
+          </section>
         </div>
 
         {error ? <div className="error">{error}</div> : null}

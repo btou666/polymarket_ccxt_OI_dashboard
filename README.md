@@ -38,6 +38,7 @@ npm run dev
 
 - `GET /api/collect` 手动触发采集（可选 `symbol` 或 `symbols` 参数）
 - `GET /api/cron/collect` 定时采集入口（用于 Vercel Cron）
+- `GET /api/debug/exchanges` 最近一次采集的交易所统计（tracked/collected/failed）
 - `GET /api/symbols` 获取交易对列表
 - `GET /api/series?symbol=BTC/USDT:USDT&limit=240` 获取折线图时序
 
