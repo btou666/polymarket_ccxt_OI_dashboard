@@ -20,13 +20,13 @@ function formatSymbolsError(err) {
 }
 
 export async function GET() {
-  const fromStorage = await listSymbols();
-  if (fromStorage.length) {
-    return NextResponse.json({ symbols: fromStorage });
-  }
-
   if (CONFIG.targetSymbols.length) {
     return NextResponse.json({ symbols: CONFIG.targetSymbols, source: "env" });
+  }
+
+  const fromStorage = await listSymbols();
+  if (fromStorage.length) {
+    return NextResponse.json({ symbols: fromStorage, source: "storage" });
   }
 
   const exchange = createBinanceClient();

@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Binance Futures OI Dashboard",
-  description: "Track Binance USDT perpetual open interest every minute via ccxt",
+  title: "Binance Aggregated OI Dashboard",
+  description: "Aggregate Binance USDT contract open interest across exchanges via ccxt",
 };
 
 export default function RootLayout({ children }) {

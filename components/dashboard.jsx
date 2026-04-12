@@ -140,13 +140,14 @@ export default function Dashboard() {
   }, []);
 
   const latest = points.length ? points[points.length - 1] : null;
+  const latestExchangeCount = latest?.exchanges?.length || 0;
 
   return (
     <main className="main">
       <header className="header">
         <div>
-          <h1 className="title">Binance 合约 OI 监控面板</h1>
-          <p className="subtitle">ccxt 抓取，每分钟更新，折线趋势可视化</p>
+          <h1 className="title">Binance 合约跨交易所 OI 监控</h1>
+          <p className="subtitle">以 Binance USDT 合约为基准，聚合多交易所 OI</p>
         </div>
         <div className="badge">刷新周期: 60 秒</div>
       </header>
@@ -174,7 +175,9 @@ export default function Dashboard() {
 
         <div className="meta">
           <span>当前交易对: {symbol || "-"}</span>
-          <span>最近 OI: {formatNumber(latest?.oi)}</span>
+          <span>最近聚合 OI: {formatNumber(latest?.oi)}</span>
+          <span>聚合交易所数: {latestExchangeCount || "-"}</span>
+          <span>计量: {latest?.metric === "value" ? "notional/value" : "amount"}</span>
           <span>最近点时间: {formatTs(latest?.ts)}</span>
           <span>接口更新时间: {formatTs(lastUpdated)}</span>
         </div>

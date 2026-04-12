@@ -1,13 +1,13 @@
 # Binance Futures OI Dashboard (ccxt)
 
-每分钟抓取 Binance U 本位永续合约 OI（Open Interest），并在页面展示折线图。
+每分钟抓取 Binance U 本位永续合约列表，并聚合多个交易所的 OI（Open Interest）后展示折线图。
 
 ## 功能
 
 - 使用 `ccxt` 抓取合约 OI
 - 定时采集（Vercel Cron 每分钟 / 服务器循环任务）
 - 折线图可视化（按交易对查看）
-- 当前版本为 Binance OI（非多交易所聚合）
+- 以 Binance USDT 永续合约为基准，聚合多交易所 OI
 - 支持 `TARGET_SYMBOLS` 指定交易对，或用 `SYMBOL_LIMIT` 自动追踪多币种
 - 存储层可选：
   - 本地 `data/oi.json`（适合服务器部署）
@@ -27,6 +27,9 @@ npm run dev
 
 - `TARGET_SYMBOLS`：逗号分隔的指定交易对（优先级最高）
 - `SYMBOL_LIMIT`：未指定交易对时，自动追踪的合约数量（默认 80）
+- `AGG_EXCHANGES`：参与聚合的交易所（ccxt id，逗号分隔）
+- `EXCHANGE_TIMEOUT_MS`：单交易所请求超时时间
+- `FALLBACK_SINGLE_FETCH_THRESHOLD`：批量接口缺失过多时是否跳过逐个查询
 - `RETENTION_HOURS`：保留历史小时数
 - `CRON_SECRET`：Vercel Cron 访问鉴权
 - `KV_REST_API_URL` / `KV_REST_API_TOKEN`：Vercel 持久化存储
