@@ -36,7 +36,7 @@ npm run dev
 
 ## 数据接口
 
-- `GET /api/rankings?lookbackHours=1&limit=500` 一级总览榜单（按 1 小时 OI 增量倒序）
+- `GET /api/rankings?sortHours=6&limit=500` 一级总览榜单（含 1h/3h/6h 环比，默认按 6h 环比倒序）
 - `GET /api/collect` 手动触发采集（可选 `symbol` 或 `symbols` 参数）
 - `GET /api/cron/collect` 定时采集入口（用于 Vercel Cron）
 - `GET /api/debug/exchanges` 最近一次采集的交易所统计（tracked/collected/failed）
@@ -47,8 +47,14 @@ npm run dev
 
 ## 页面结构
 
-- 一级页面 `/`：所有币对按 1 小时 OI 增量倒序展示
+- 一级页面 `/`：所有币对展示 1h/3h/6h 环比，按 6h 环比倒序
 - 二级页面 `/symbol?symbol=BTC/USDT:USDT`：单币对详情（折线图按小时横轴）
+
+## 自动更新
+
+- 数据采集由 `oi-collector` 进程自动循环执行，默认每 60 秒抓取一次（无需手动触发）
+- 前端页面默认每 60 秒自动刷新榜单和详情数据
+- 可通过 `.env` 的 `COLLECT_INTERVAL_MS` 调整采集周期（毫秒）
 
 ## Vercel 部署
 

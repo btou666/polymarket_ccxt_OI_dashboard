@@ -1,12 +1,12 @@
 :root {
-  --bg: #08111f;
-  --bg-soft: #10213b;
-  --card: rgba(13, 27, 50, 0.8);
-  --text: #d8e8ff;
-  --text-dim: #94add1;
-  --accent: #4ec5ff;
-  --accent-2: #ff9f43;
-  --border: rgba(127, 176, 230, 0.26);
+  --bg: #ece7df;
+  --bg-soft: #dfd7cd;
+  --card: rgba(250, 246, 240, 0.88);
+  --text: #4f4943;
+  --text-dim: #7a7269;
+  --accent: #8e9f95;
+  --accent-2: #b88c7d;
+  --border: rgba(132, 121, 109, 0.26);
 }
 
 * {
@@ -18,9 +18,9 @@ body {
   font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at 15% 10%, rgba(79, 157, 255, 0.22), transparent 40%),
-    radial-gradient(circle at 85% 90%, rgba(255, 173, 96, 0.2), transparent 38%),
-    linear-gradient(170deg, var(--bg) 0%, #0c1630 48%, #08111f 100%);
+    radial-gradient(circle at 12% 8%, rgba(180, 157, 141, 0.22), transparent 42%),
+    radial-gradient(circle at 85% 90%, rgba(141, 160, 150, 0.2), transparent 40%),
+    linear-gradient(170deg, var(--bg) 0%, #e8e2d9 48%, #e3dbd1 100%);
   min-height: 100vh;
 }
 
@@ -55,9 +55,9 @@ body {
 }
 
 .badge {
-  color: #b6d7ff;
+  color: #655d56;
   border: 1px solid var(--border);
-  background: rgba(78, 197, 255, 0.1);
+  background: rgba(143, 161, 150, 0.16);
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 12px;
@@ -84,7 +84,7 @@ button {
   appearance: none;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: rgba(10, 25, 45, 0.78);
+  background: rgba(245, 240, 233, 0.92);
   color: var(--text);
   padding: 10px 12px;
   font-size: 14px;
@@ -97,7 +97,7 @@ button {
 
 button:hover {
   transform: translateY(-1px);
-  border-color: rgba(78, 197, 255, 0.65);
+  border-color: rgba(143, 161, 150, 0.7);
 }
 
 button:disabled {
@@ -124,7 +124,7 @@ button:disabled {
 .panel {
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: rgba(8, 20, 39, 0.46);
+  background: rgba(241, 235, 227, 0.72);
   padding: 10px;
 }
 
@@ -138,7 +138,7 @@ button:disabled {
 .panel-title {
   margin: 0;
   font-size: 14px;
-  color: #d4e7ff;
+  color: #5f5750;
 }
 
 .panel-meta {
@@ -165,7 +165,7 @@ button:disabled {
 .mini-table th,
 .mini-table td {
   text-align: left;
-  border-bottom: 1px solid rgba(127, 176, 230, 0.18);
+  border-bottom: 1px solid rgba(132, 121, 109, 0.2);
   padding: 6px 4px;
 }
 
@@ -184,11 +184,11 @@ button:disabled {
   text-decoration: none;
   padding: 6px 10px;
   font-size: 12px;
-  background: rgba(10, 25, 45, 0.78);
+  background: rgba(245, 240, 233, 0.92);
 }
 
 .link-btn:hover {
-  border-color: rgba(78, 197, 255, 0.65);
+  border-color: rgba(143, 161, 150, 0.7);
 }
 
 .empty-note {
@@ -200,13 +200,13 @@ button:disabled {
 .small-error {
   margin-top: 10px;
   font-size: 12px;
-  color: #ffc39d;
+  color: #b18678;
 }
 
 .error {
-  color: #ffd0b0;
-  background: rgba(132, 50, 20, 0.35);
-  border: 1px solid rgba(255, 173, 132, 0.6);
+  color: #8b5f4f;
+  background: rgba(185, 145, 127, 0.18);
+  border: 1px solid rgba(184, 140, 125, 0.54);
   padding: 10px;
   border-radius: 10px;
   margin-top: 12px;

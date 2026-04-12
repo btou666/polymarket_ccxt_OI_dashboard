@@ -16,6 +16,10 @@ import { Line } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 const REFRESH_MS = 60_000;
+const CHART_LINE = "#8e9f95";
+const CHART_FILL = "rgba(142, 159, 149, 0.22)";
+const CHART_TEXT = "#6e665e";
+const CHART_GRID = "rgba(132, 121, 109, 0.22)";
 
 function formatNumber(value) {
   if (value == null || Number.isNaN(value)) return "-";
@@ -169,8 +173,8 @@ export default function Dashboard({ initialSymbol = "" }) {
         {
           label: `${symbol || "合约"} OI (小时)`,
           data: hourlyPoints.map((p) => p.oi),
-          borderColor: "#4ec5ff",
-          backgroundColor: "rgba(78, 197, 255, 0.22)",
+          borderColor: CHART_LINE,
+          backgroundColor: CHART_FILL,
           borderWidth: 2,
           tension: 0.25,
           pointRadius: 0,
@@ -185,16 +189,16 @@ export default function Dashboard({ initialSymbol = "" }) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: "#d8e8ff" } },
+        legend: { labels: { color: CHART_TEXT } },
       },
       scales: {
         x: {
-          ticks: { color: "#a8c0e6", maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
-          grid: { color: "rgba(133, 168, 209, 0.12)" },
+          ticks: { color: CHART_TEXT, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
+          grid: { color: CHART_GRID },
         },
         y: {
-          ticks: { color: "#a8c0e6", callback: (v) => formatNumber(v) },
-          grid: { color: "rgba(133, 168, 209, 0.12)" },
+          ticks: { color: CHART_TEXT, callback: (v) => formatNumber(v) },
+          grid: { color: CHART_GRID },
         },
       },
     };
