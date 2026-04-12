@@ -1,0 +1,20 @@
+{
+  "name": "binance-oi-dashboard",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "collect:loop": "node scripts/collect-loop.mjs"
+  },
+  "dependencies": {
+    "ccxt": "^4.5.5",
+    "chart.js": "^4.4.3",
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1"
+  }
+}

@@ -1,0 +1,131 @@
+:root {
+  --bg: #08111f;
+  --bg-soft: #10213b;
+  --card: rgba(13, 27, 50, 0.8);
+  --text: #d8e8ff;
+  --text-dim: #94add1;
+  --accent: #4ec5ff;
+  --accent-2: #ff9f43;
+  --border: rgba(127, 176, 230, 0.26);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(79, 157, 255, 0.22), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(255, 173, 96, 0.2), transparent 38%),
+    linear-gradient(170deg, var(--bg) 0%, #0c1630 48%, #08111f 100%);
+  min-height: 100vh;
+}
+
+.main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 18px 48px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(24px, 3.6vw, 40px);
+  letter-spacing: 0.4px;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.badge {
+  color: #b6d7ff;
+  border: 1px solid var(--border);
+  background: rgba(78, 197, 255, 0.1);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) auto auto;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+select,
+button {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(10, 25, 45, 0.78);
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+button {
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(78, 197, 255, 0.65);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.meta {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.error {
+  color: #ffd0b0;
+  background: rgba(132, 50, 20, 0.35);
+  border: 1px solid rgba(255, 173, 132, 0.6);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+
+@media (max-width: 760px) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
