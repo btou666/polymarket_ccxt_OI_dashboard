@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { CONFIG } from "@/lib/config";
-import { createBinanceClient, resolveSymbols } from "@/lib/binance";
+import { createBinanceClient, resolveSymbols, resolveSymbolsFromExchanges } from "@/lib/binance";
 import { listSymbols } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -42,10 +42,26 @@ export async function GET() {
     });
     return NextResponse.json({ symbols });
   } catch (err) {
-    return NextResponse.json(
-      { symbols: [], error: formatSymbolsError(err) },
-      { status: 500 },
-    );
+    try {
+      const fallbackSymbols = await resolveSymbolsFromExchanges({
+        exchangeIds: CONFIG.aggExchanges,
+        quoteAsset: CONFIG.quoteAsset,
+        symbolLimit: CONFIG.symbolLimit,
+        exchangeTimeoutMs: CONFIG.exchangeTimeoutMs,
+      });
+
+      if (fallbackSymbols.length) {
+        return NextResponse.json({
+          symbols: fallbackSymbols,
+          source: "fallback-exchanges",
+          warning: formatSymbolsError(err),
+        });
+      }
+    } catch {
+      // Ignore fallback exception and return original error below.
+    }
+
+    return NextResponse.json({ symbols: [], error: formatSymbolsError(err) }, { status: 500 });
   } finally {
     await exchange.close?.();
   }

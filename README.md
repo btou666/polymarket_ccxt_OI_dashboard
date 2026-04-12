@@ -55,6 +55,7 @@ npm run dev
 - Binance Futures 在部分地域（尤其美国）可能受限，已在 API 配置亚洲优先区域；若仍失败建议使用自建服务器部署。
 - Vercel 无本地持久化磁盘，生产建议启用 Upstash Redis。
 - 未启用 Upstash 时，项目会在 Vercel 使用 `/tmp/binance-oi-dashboard` 作为可写临时目录。
+- 若 Binance `exchangeInfo` 返回 451，系统会自动回退到其他交易所市场列表生成锚定合约（保证采集不中断）。
 
 ## 外部 Cron（每分钟）
 
