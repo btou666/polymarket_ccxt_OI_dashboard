@@ -34,6 +34,7 @@ export default function Overview() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [generatedAt, setGeneratedAt] = useState(0);
+  const [sortState, setSortState] = useState({ key: "pct6h", direction: "desc" });
 
   const loadRankings = useCallback(async () => {
     setLoading(true);
@@ -60,14 +61,48 @@ export default function Overview() {
     return () => clearInterval(timer);
   }, [loadRankings]);
 
-  const topRows = useMemo(() => rows, [rows]);
+  const onSort = useCallback((key) => {
+    setSortState((prev) => {
+      if (prev.key === key) {
+        return { key, direction: prev.direction === "desc" ? "asc" : "desc" };
+      }
+      return { key, direction: "desc" };
+    });
+  }, []);
+
+  const topRows = useMemo(() => {
+    const sorted = [...rows];
+    const { key, direction } = sortState;
+
+    sorted.sort((a, b) => {
+      const av = a[key];
+      const bv = b[key];
+      const aValid = Number.isFinite(av);
+      const bValid = Number.isFinite(bv);
+
+      if (aValid !== bValid) return aValid ? -1 : 1;
+      if (!aValid && !bValid) return (b.latestOi ?? -Infinity) - (a.latestOi ?? -Infinity);
+      if (av === bv) return (b.latestOi ?? -Infinity) - (a.latestOi ?? -Infinity);
+      return direction === "desc" ? bv - av : av - bv;
+    });
+
+    return sorted;
+  }, [rows, sortState]);
+
+  const sortMark = useCallback(
+    (key) => {
+      if (sortState.key !== key) return "";
+      return sortState.direction === "desc" ? " v" : " ^";
+    },
+    [sortState],
+  );
 
   return (
     <main className="main">
       <header className="header">
         <div>
           <h1 className="title">OI 环比总览</h1>
-          <p className="subtitle">展示 1h/3h/6h/12h 环比，按 6h 环比倒序，点击币对进入详情</p>
+          <p className="subtitle">展示 1h/3h/6h/12h 环比，支持点击列头排序，点击币对进入详情</p>
         </div>
         <div className="badge">刷新周期: 60 秒</div>
       </header>
@@ -90,10 +125,26 @@ export default function Overview() {
                 <th>#</th>
                 <th>币对</th>
                 <th>1h 增量</th>
-                <th>1h 环比</th>
-                <th>3h 环比</th>
-                <th>6h 环比</th>
-                <th>12h 环比</th>
+                <th>
+                  <button type="button" className="table-sort-btn" onClick={() => onSort("pct1h")}>
+                    1h 环比{sortMark("pct1h")}
+                  </button>
+                </th>
+                <th>
+                  <button type="button" className="table-sort-btn" onClick={() => onSort("pct3h")}>
+                    3h 环比{sortMark("pct3h")}
+                  </button>
+                </th>
+                <th>
+                  <button type="button" className="table-sort-btn" onClick={() => onSort("pct6h")}>
+                    6h 环比{sortMark("pct6h")}
+                  </button>
+                </th>
+                <th>
+                  <button type="button" className="table-sort-btn" onClick={() => onSort("pct12h")}>
+                    12h 环比{sortMark("pct12h")}
+                  </button>
+                </th>
                 <th>当前 OI</th>
                 <th>交易所(计入/总)</th>
                 <th>最近点时间</th>

@@ -174,6 +174,21 @@ button:disabled {
   white-space: nowrap;
 }
 
+.table-sort-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.table-sort-btn:hover {
+  transform: none;
+  border-color: transparent;
+  color: var(--text);
+}
+
 .link-btn {
   display: inline-flex;
   align-items: center;
