@@ -287,6 +287,8 @@ export default function Dashboard({ initialSymbol = "" }) {
                         <td>
                           {row.included === false
                             ? "未计入汇总"
+                            : row.contractAdjusted
+                              ? "已计入(合约乘数修正)"
                             : row.estimated
                               ? "已计入(估算价)"
                               : "已计入"}
