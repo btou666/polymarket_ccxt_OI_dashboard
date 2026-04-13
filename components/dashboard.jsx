@@ -270,6 +270,7 @@ export default function Dashboard({ initialSymbol = "" }) {
                     <tr>
                       <th>交易所</th>
                       <th>原始 OI</th>
+                      <th>价格</th>
                       <th>折算值</th>
                       <th>计量</th>
                       <th>状态</th>
@@ -280,9 +281,16 @@ export default function Dashboard({ initialSymbol = "" }) {
                       <tr key={`${row.exchange}-${row.metric}`}>
                         <td>{row.exchange || "-"}</td>
                         <td>{formatNumber(row.oi)}</td>
+                        <td>{row.price != null ? formatNumber(row.price) : "-"}</td>
                         <td>{row.value != null ? formatNumber(row.value) : "-"}</td>
                         <td>{row.metric || latest?.metric || "-"}</td>
-                        <td>{row.included === false ? "未计入汇总" : "已计入"}</td>
+                        <td>
+                          {row.included === false
+                            ? "未计入汇总"
+                            : row.estimated
+                              ? "已计入(估算价)"
+                              : "已计入"}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

@@ -44,6 +44,7 @@ npm run dev
 - `GET /api/series?symbol=BTC/USDT:USDT&limit=240` 获取折线图时序
 
 说明：当部分交易所仅返回 `amount` 而非 `value` 时，系统会尝试用 ticker 价格折算为 `value` 并计入聚合；面板会展示每个交易所是否被计入。
+若个别交易所缺少实时价格，系统会用同币对其他交易所的中位价格做代理折算，并标记为“已计入(估算价)”。
 
 ## 页面结构
 
