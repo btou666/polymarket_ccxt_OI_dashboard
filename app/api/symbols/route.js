@@ -24,24 +24,17 @@ export async function GET() {
     return NextResponse.json({ symbols: CONFIG.targetSymbols, source: "env" });
   }
 
-  try {
-    const fromStorage = await listSymbols();
-    if (fromStorage.length) {
-      return NextResponse.json({ symbols: fromStorage, source: "storage" });
-    }
-  } catch {
-    // Ignore storage read errors and continue with exchange discovery.
-  }
-
   const exchange = createBinanceClient();
+  let primaryError = null;
   try {
     const symbols = await resolveSymbols(exchange, {
       quoteAsset: CONFIG.quoteAsset,
       symbolLimit: CONFIG.symbolLimit,
       requestedSymbols: [],
     });
-    return NextResponse.json({ symbols });
+    return NextResponse.json({ symbols, source: "binance-markets" });
   } catch (err) {
+    primaryError = err;
     try {
       const fallbackSymbols = await resolveSymbolsFromExchanges({
         exchangeIds: CONFIG.aggExchanges,
@@ -54,15 +47,31 @@ export async function GET() {
         return NextResponse.json({
           symbols: fallbackSymbols,
           source: "fallback-exchanges",
-          warning: formatSymbolsError(err),
+          warning: formatSymbolsError(primaryError),
         });
       }
     } catch {
       // Ignore fallback exception and return original error below.
     }
-
-    return NextResponse.json({ symbols: [], error: formatSymbolsError(err) }, { status: 500 });
   } finally {
     await exchange.close?.();
   }
+
+  try {
+    const fromStorage = await listSymbols();
+    if (fromStorage.length) {
+      return NextResponse.json({
+        symbols: fromStorage,
+        source: "storage",
+        warning: primaryError ? formatSymbolsError(primaryError) : undefined,
+      });
+    }
+  } catch {
+    // Ignore storage read errors and continue with error response below.
+  }
+
+  return NextResponse.json(
+    { symbols: [], error: formatSymbolsError(primaryError || new Error("resolve symbols failed")) },
+    { status: 500 },
+  );
 }

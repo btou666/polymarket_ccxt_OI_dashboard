@@ -26,7 +26,7 @@ npm run dev
 ## 关键环境变量
 
 - `TARGET_SYMBOLS`：逗号分隔的指定交易对（优先级最高）
-- `SYMBOL_LIMIT`：未指定交易对时，自动追踪的合约数量（默认 80）
+- `SYMBOL_LIMIT`：未指定交易对时，自动追踪的合约数量（默认 0，表示全量）
 - `AGG_EXCHANGES`：参与聚合的交易所（ccxt id，逗号分隔）
 - `EXCHANGE_TIMEOUT_MS`：单交易所请求超时时间
 - `FALLBACK_SINGLE_FETCH_THRESHOLD`：批量接口缺失过多时是否跳过逐个查询
