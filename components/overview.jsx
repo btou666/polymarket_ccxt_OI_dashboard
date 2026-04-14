@@ -47,7 +47,6 @@ export default function Overview() {
       setGeneratedAt(data.generatedAt || Date.now());
     } catch (err) {
       setError(err.message || "读取榜单失败");
-      setRows([]);
     } finally {
       setLoading(false);
     }
